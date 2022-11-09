@@ -2,10 +2,11 @@ package utils
 
 import (
 	"github.com/dgrijalva/jwt-go"
+	"os"
 	"time"
 )
 
-var jwtSecret = []byte("AAAA")
+var jwtSecret = []byte(os.Getenv("JWT_SECRET"))
 
 type Claims struct {
 	Id        uint   `json:"id"`
@@ -28,10 +29,11 @@ func GenerateToken(id uint, username string, authority int) (string, error) {
 		},
 	}
 	tokenClaims := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return tokenClaims.SigningString()
+	return tokenClaims.SignedString(jwtSecret)
 }
 
 // 验证用户token
+// ParseToken 验证用户token
 func ParseToken(token string) (*Claims, error) {
 	tokenClaims, err := jwt.ParseWithClaims(token, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		return jwtSecret, nil
