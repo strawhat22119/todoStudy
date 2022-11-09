@@ -5,6 +5,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 	"log"
 	"os"
 	"time"
@@ -29,6 +30,9 @@ func Database(path string) {
 	}
 	db, err := gorm.Open(mysql.Open(path), &gorm.Config{
 		Logger: newLogger,
+		NamingStrategy: schema.NamingStrategy{
+			SingularTable: true, // 表明新建表不加s
+		},
 	})
 	//设置数据库链接配置
 	sqlDb, err := db.DB()
@@ -44,4 +48,6 @@ func Database(path string) {
 	//设置连接可复用最大时间
 	sqlDb.SetConnMaxLifetime(time.Hour)
 	DB = db
+	//自动迁移 创建表
+	migration()
 }
